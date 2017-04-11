@@ -1,8 +1,8 @@
 #Background: EEFlux provides ET and ETrF maps using 30 m Landsat resolution in the Google Earth Engine playground. 
 #However, Landsat 7 images have gaps that EEFlux did not remove in its beta version.
 
-#Objective: I will 1) use the pre-downloaded gap mask (gm) files from Landsat and 2) clip out the false zeroes. Then,
-#I will clip out the false zeroes in your EEFlux ET maps. GM - refers to Gap Mask. EE - refers to EEFlux ET maps
+#Objectives: I will 1) use the pre-downloaded gap mask (gm) files from Landsat and 2) clip out the gaps in the ET maps. 
+#GM - refers to Gap Mask. EE - refers to EEFlux ET maps
 
 #require MapTools
 require(rgdal)
