@@ -1,8 +1,19 @@
 #Background: EEFlux provides ET and ETrF maps using 30 m Landsat resolution in the Google Earth Engine playground. 
-#However, Landsat 7 images have gaps that EEFlux did not remove in its beta version.
+#However, Landsat 7 images have gaps that EEFlux did not remove in its beta version. The pixels within these gaps have a value
+#of 0. Although the striping is not in the image center, about 22% of image data is lost. Missing data is interpolated and images 
+#are "gap-filled". Before interpolation, we must clip out the "false zeroes" in EEFlux maps. 
 
-#Objectives: I will 1) use the pre-downloaded gap mask (gm) files from Landsat and 2) clip out the gaps in the ET maps. 
-#GM - refers to Gap Mask. EE - refers to EEFlux ET maps
+#Objectives: I will use the pre-downloaded gap mask (gm) files from Landsat, convert them to a shapefile, 
+#and clip out the gaps in the ET maps, using the converted shp gm. 
+#GM - refers to Gap Mask. EE - refers to EEFlux ET maps. 
+
+#Note: As with other scripts, you will notice that these folder naming conventions are structured and contain a sub-dir with 
+#the year of interest.
+
+#Note: EEFlux maps and Landsat Gap Masks must already be downloaded. 
+
+#-----------------------------------------------------------------------------------
+
 
 #require MapTools
 require(rgdal)
@@ -16,17 +27,14 @@ Code.Year <- 2015
 
 #------------ Clipping Gap Mask Polygons to the Gaps. ------------
 #Isolate all the poly .shp in your gm folders
-GM.pn <- paste0("F:/Landsat/P39R37/Gap Masks/",Code.Year)
-GM.directories <- dir(GM.pn,patt=".tif$|.TIF$",recursive = TRUE,full.names = TRUE,include.dirs = TRUE)
+GM.pn <- paste0("F:/Landsat/P39R37/Gap Masks/",Code.Year) 
+GM.directories <- dir(GM.pn,patt=".tif$|.TIF$",recursive = TRUE,full.names = TRUE,include.dirs = TRUE) #the "|" allows dir() to search for more than one pattern
 GM.directories <- GM.directories[grep("clipB4",GM.directories)]
 GM.directories <- GM.directories[grep("gap_mask",GM.directories)]
 GM.directories
 
 
-#Clip TIFs and convert to shapefile. See note below. 
-#Note: Shapefile conversion crashes in R (26 Feb 2017). 
-#This will only clip your tifs. Work in arcmap to convert to shp.
-#Save to integer file in ArcMap to convert raster to poly.
+#Clip gap mask files to a smaller AOI for faster processing.
 GM.AOI.pn <- "F:\\Landsat\\P39R37"
 GM.AOI.fn <- "SubsetAOI"
 GM.AOI <- readOGR(GM.AOI.pn,GM.AOI.fn)
@@ -49,11 +57,13 @@ for (i in 2:length(GM.directories)) {
   flush.console()
 }  
 
+#Work in a GIS to convert to shp. (R code to do this crashes as of Jan 23, 2017)
+#After conversion, I save to integer file in ArcMap to convert raster to poly.
 
 
 
-#Bring in your tiff-to-shp converted files (they might have the "_int" extension to indicate 
-#they were once the integer tiff which was then converted
+
+#Bring in your tiff-to-shp converted files
 GM.shp.directories <- dir(GM.pn,patt=".shp",recursive = TRUE,full.names = TRUE,include.dirs = TRUE)
 GM.shp.directories
 
@@ -67,15 +77,12 @@ extension(gm.shp.outfiles) <- "shp"
 gm.shp.outfiles
 
 
-
-#Create buffer around the shapefiles 
-#isolate the null/gapped data
+#Create buffer around the shapefiles (mine is set to 15 m all around).
 gm.dsn <- substr(GM.shp.directories,0,46)
 gm.lyr <- substr(GM.shp.directories,48,53) #this might account for the "_int" extension. change if necessary. 
 
 for (i in 1:length(gm.shp.outfiles)) { 
   GM.shp_ss <- readOGR(gm.dsn[i],gm.lyr[i])
-  
   GM.shp_stripe <- GM.shp_ss[GM.shp_ss$GRIDCODE == 0,]
   
   GM.shp_stripe_15m <- rgeos::gBuffer(GM.shp_stripe,width=15,byid=TRUE,quadsegs = 15)
@@ -93,14 +100,14 @@ for (i in 1:length(gm.shp.outfiles)) {
 
 ##### Gap removal in ET maps ######
 #--------- Bring in your EEFlux clipped (study area) images -----------
-EE.pn <- paste0("F:/EEFlux/P39R37/",Code.Year,"/ET/Clipped")
+EE.pn <- paste0("F:/EEFlux/P39R37/",Code.Year,"/ET/Clipped") #I've renamed my images to "YYYY_DD_MM_Sensor" where sensors = L5, L7, or L8
 EE.directories <- dir(EE.pn,patt=".tif$|.img$",full.names=TRUE,recursive = FALSE)
 EE.directories <- EE.directories[grep("_L5",EE.directories,invert = TRUE)]
-EE.directories <- EE.directories[grep("_L8",EE.directories,invert = TRUE)] #we only want L7
+EE.directories <- EE.directories[grep("_L8",EE.directories,invert = TRUE)] #we only want to destripe L7 images!
 EE.directories
 
-#create filenames for the EEFlux maps you will destripe
-#ds for destriped EEFlux ET maps
+#create filenames for the EEFlux maps that you will destripe
+#ds = destriped EEFlux maps
 ds.outfiles.fold <- paste0("F:/EEFlux/P39R37/",Code.Year,"/ET/DestripedImages/")
 ds.outfiles.fold
 ds.outfiles.fn <- substr(EE.directories,34,43)
