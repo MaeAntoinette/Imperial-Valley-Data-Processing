@@ -1,2 +1,2 @@
 # ET-Map-Processing
-Clipping, Interpolation, Time Series. Mostly EEFlux ET data. Includes a script with MODIS ET. 
+Scripts to use R as a GIS. I use raster data in my analyses and need to process them. Most is with EEFlux ET or Landsat NDVI (raster to points, clipping, interpolation, time series analyses, gap masks, and dealing with EEFlux ET false zero data). Included is a MODIS ET/NDVI reprojection script.
