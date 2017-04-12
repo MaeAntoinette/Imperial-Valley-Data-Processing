@@ -8,9 +8,8 @@
 require(rgdal)
 
 #---------- Identify the clipped NDVI maps of interest ----------------
-#Note: NDVI maps are clipped to the entire IV (using ET map 2012_12_30.img)
 Code.Year <- "2014"
-NDVI.pn <- paste0("F:/Landsat/P39R37_NDVI/",Code.Year,"/ImperialValleyCrops") #Your clipped IV outline NDVI maps
+NDVI.pn <- paste0("F:/Landsat/P39R37_NDVI/",Code.Year,"/ImperialValleyCrops") #Your folder of clipped NDVI maps
 NDVI.directories <- dir(NDVI.pn, patt=".tif$|.img$", full.names = TRUE, recursive = FALSE)
 NDVI.directories <- NDVI.directories[grep("_L7",NDVI.directories)] #only use L7 images
 NDVI.directories
@@ -23,7 +22,7 @@ NDVI.shp.outfiles <- paste0(NDVI.shp.outfiles.fold,NDVI.shp.outfiles.fn)
 extension(NDVI.shp.outfiles) <- "shp"
 NDVI.shp.outfiles
 
-NDVI.shp.dsn <- substr(NDVI.shp.outfiles.fold,0,43) #this if for you loop below.
+NDVI.shp.dsn <- substr(NDVI.shp.outfiles.fold,0,43) #this if for your loop below.
 NDVI.shp.lyr <- NDVI.shp.outfiles.fn
 
 #Test a single image before running loop
