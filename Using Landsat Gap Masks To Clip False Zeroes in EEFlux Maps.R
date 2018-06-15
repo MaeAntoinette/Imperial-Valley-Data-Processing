@@ -7,10 +7,15 @@
 #and clip out the gaps in the ET maps, using the converted shp gm. 
 #GM - refers to Gap Mask. EE - refers to EEFlux ET maps. 
 
+#Note: EEFlux maps and Landsat Gap Masks must already be downloaded. Further, gap masks downloaded from Landsat have binary data.
+#0 - null, 1 - actual data. I clipped the files to show only the actual data as this is the data that I want to keep.
+
+#Gap masks must already be clipped to the "actual" data. 
+
 #Note: As with other scripts, you will notice that these folder naming conventions are structured and contain a sub-dir with 
 #the year of interest.
 
-#Note: EEFlux maps and Landsat Gap Masks must already be downloaded. 
+
 
 #-----------------------------------------------------------------------------------
 
